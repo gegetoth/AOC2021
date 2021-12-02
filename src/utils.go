@@ -6,12 +6,12 @@ import (
 	"os"
 )
 
-func read_lines() []string{
+func read_lines(location string) []string {
 
 	// os.Open() opens specific file in
 	// read-only mode and this return
 	// a pointer of type os.
-	file, err := os.Open("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_1.txt")
+	file, err := os.Open(location)
 
 	if err != nil {
 		log.Fatalf("failed to open")
