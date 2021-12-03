@@ -47,3 +47,24 @@ func read_lines(location string) []string {
 	//}
 	return text
 }
+
+func printIntMatrix(intMatrix [][]int) {
+	for i := 0; i < len(intMatrix); i++ {
+		row := intMatrix[i]
+		for j := 0; j < len(row); j++ {
+			print(row[j])
+		}
+		println("")
+	}
+}
+
+func printStrMatrix(intMatrix [][]string) {
+	for i := 0; i < len(intMatrix); i++ {
+		row := intMatrix[i]
+		for j := 0; j < len(row); j++ {
+			print(row[j])
+		}
+		println("")
+	}
+	println("")
+}
