@@ -107,59 +107,31 @@ func getCoordsFromLine(ventLine VentLine) []VentCoordinates {
 	yPrev := y1
 
 	if x1 == x2 {
-		miny := y1
-		maxy := y2
-		if miny > maxy {
-			tmp := maxy
-			maxy = miny
-			miny = tmp
-		}
-
-		for i := miny; i <= maxy; i++ {
-			fields = append(fields, VentCoordinates{x1, i})
-		}
+		xStep = 0
+		yStep = (y2 - y1) / absInt(y2-y1)
 	} else if y1 == y2 {
-		minx := x1
-		maxx := x2
-		if minx > maxx {
-			tmp := maxx
-			maxx = minx
-			minx = tmp
-		}
-
-		for i := minx; i <= maxx; i++ {
-			fields = append(fields, VentCoordinates{i, y1})
-		}
-	} else {
-		if x1 == x2 {
-			xStep = 0
-			yStep = (y1 - y2) / absInt(y1-y2)
-		} else if y1 == y2 {
-			xStep = (x1 - x2) / absInt(x1-x2)
-			yStep = 0
-		} else if x1 < x2 && y1 < y2 {
-			xStep = 1
-			yStep = 1
-		} else if x1 < x2 && y1 > y2 {
-			xStep = 1
-			yStep = -1
-		} else if x1 > x2 && y1 < y2 {
-			xStep = -1
-			yStep = 1
-		} else if x1 > x2 && y1 > y2 {
-			xStep = -1
-			yStep = -1
-		}
-
-		fields = append(fields, VentCoordinates{x1, y1})
-		for xPrev != x2 && yPrev != y2 {
-			fields = append(fields, VentCoordinates{xPrev + xStep, yPrev + yStep})
-			//i=i+xStep
-			xPrev = xPrev + xStep
-			yPrev = yPrev + yStep
-		}
+		xStep = (x2 - x1) / absInt(x2-x1)
+		yStep = 0
+	} else if x1 < x2 && y1 < y2 {
+		xStep = 1
+		yStep = 1
+	} else if x1 < x2 && y1 > y2 {
+		xStep = 1
+		yStep = -1
+	} else if x1 > x2 && y1 < y2 {
+		xStep = -1
+		yStep = 1
+	} else if x1 > x2 && y1 > y2 {
+		xStep = -1
+		yStep = -1
 	}
 
+	fields = append(fields, VentCoordinates{x1, y1})
+	for xPrev != x2 || yPrev != y2 {
+		fields = append(fields, VentCoordinates{xPrev + xStep, yPrev + yStep})
+		xPrev = xPrev + xStep
+		yPrev = yPrev + yStep
+	}
 	return fields
 }
 
@@ -175,7 +147,7 @@ func absDiffInt(x, y int) int {
 }
 
 func run5_1() {
-	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5.txt")
+	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5_example.txt")
 	ventLines, ventMap := getVentMapAndLines(input, true)
 	overlapCounter := 0
 	for _, line := range ventLines {
@@ -210,7 +182,7 @@ func run5_2() {
 			ventMap.fields[coord.y][coord.x]++
 		}
 	}
-	printVentMap(ventMap)
+	//printVentMap(ventMap)
 	println(overlapCounter)
 
 }
