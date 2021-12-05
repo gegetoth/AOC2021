@@ -17,10 +17,6 @@ type VentLine struct {
 	v2 VentCoordinates
 }
 
-type VentMapField struct {
-	overlapCounter int `default:"0"`
-}
-
 type VentMap struct {
 	size   int
 	fields [][]int
@@ -39,12 +35,11 @@ func getVentMapAndLines(input []string, onlyHorizontalVertical bool) ([]VentLine
 	size := 0
 	ventLines := make([]VentLine, 0)
 	for _, line := range input {
-		split := strings.Split(line, "->")
-		vert1 := strings.Split(strings.TrimSpace(split[0]), ",")
-		vert2 := strings.Split(strings.TrimSpace(split[1]), ",")
+		split := strings.Split(line, " -> ")
+		vert1 := strings.Split(split[0], ",")
+		vert2 := strings.Split(split[1], ",")
 		x1, _ := strconv.Atoi(vert1[0])
 		y1, _ := strconv.Atoi(vert1[1])
-
 		x2, _ := strconv.Atoi(vert2[0])
 		y2, _ := strconv.Atoi(vert2[1])
 
@@ -94,6 +89,15 @@ func printVentMap(ventMap VentMap) {
 	}
 }
 
+func step(v1 int, v2 int) int {
+	if v1 < v2 {
+		return 1
+	} else if v1 == v2 {
+		return 0
+	}
+	return -1
+}
+
 func getCoordsFromLine(ventLine VentLine) []VentCoordinates {
 	x1 := ventLine.v1.x
 	y1 := ventLine.v1.y
@@ -101,30 +105,10 @@ func getCoordsFromLine(ventLine VentLine) []VentCoordinates {
 	y2 := ventLine.v2.y
 
 	fields := make([]VentCoordinates, 0)
-	xStep := 0
-	yStep := 0
+	xStep := step(x1, x2)
+	yStep := step(y1, y2)
 	xPrev := x1
 	yPrev := y1
-
-	if x1 == x2 {
-		xStep = 0
-		yStep = (y2 - y1) / absInt(y2-y1)
-	} else if y1 == y2 {
-		xStep = (x2 - x1) / absInt(x2-x1)
-		yStep = 0
-	} else if x1 < x2 && y1 < y2 {
-		xStep = 1
-		yStep = 1
-	} else if x1 < x2 && y1 > y2 {
-		xStep = 1
-		yStep = -1
-	} else if x1 > x2 && y1 < y2 {
-		xStep = -1
-		yStep = 1
-	} else if x1 > x2 && y1 > y2 {
-		xStep = -1
-		yStep = -1
-	}
 
 	fields = append(fields, VentCoordinates{x1, y1})
 	for xPrev != x2 || yPrev != y2 {
@@ -135,54 +119,36 @@ func getCoordsFromLine(ventLine VentLine) []VentCoordinates {
 	return fields
 }
 
-func absInt(x int) int {
-	return absDiffInt(x, 0)
-}
+func getOverlaps(ventLines []VentLine, ventMap VentMap, isPrintMap bool) {
+	overlapCounter := 0
+	for _, line := range ventLines {
+		fmt.Printf("%+v\n", line)
+		coords := getCoordsFromLine(line)
+		fmt.Printf("%+v\n", coords)
 
-func absDiffInt(x, y int) int {
-	if x < y {
-		return y - x
+		for _, coord := range coords {
+			if ventMap.fields[coord.y][coord.x] == 1 {
+				overlapCounter++
+			}
+			ventMap.fields[coord.y][coord.x]++
+		}
 	}
-	return x - y
+
+	if isPrintMap {
+		printVentMap(ventMap)
+	}
+	println(overlapCounter)
 }
 
 func run5_1() {
 	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5_example.txt")
 	ventLines, ventMap := getVentMapAndLines(input, true)
-	overlapCounter := 0
-	for _, line := range ventLines {
-		fmt.Printf("%+v\n", line)
-		coords := getCoordsFromLine(line)
-		fmt.Printf("%+v\n", coords)
-
-		for _, coord := range coords {
-			if ventMap.fields[coord.y][coord.x] == 1 {
-				overlapCounter++
-			}
-			ventMap.fields[coord.y][coord.x]++
-		}
-	}
-	printVentMap(ventMap)
-	println(overlapCounter)
+	getOverlaps(ventLines, ventMap, true)
 }
 
 func run5_2() {
 	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5.txt")
 	ventLines, ventMap := getVentMapAndLines(input, false)
-	overlapCounter := 0
-	for _, line := range ventLines {
-		fmt.Printf("%+v\n", line)
-		coords := getCoordsFromLine(line)
-		fmt.Printf("%+v\n", coords)
-
-		for _, coord := range coords {
-			if ventMap.fields[coord.y][coord.x] == 1 {
-				overlapCounter++
-			}
-			ventMap.fields[coord.y][coord.x]++
-		}
-	}
-	//printVentMap(ventMap)
-	println(overlapCounter)
+	getOverlaps(ventLines, ventMap, false)
 
 }
