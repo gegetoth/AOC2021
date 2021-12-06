@@ -10,5 +10,6 @@ func main() {
 	//run4_1()
 	//run4_2()
 	//run5_1()
-	run5_2()
+	//run5_2()
+	run6_1()
 }

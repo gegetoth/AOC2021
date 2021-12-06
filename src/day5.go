@@ -141,13 +141,13 @@ func getOverlaps(ventLines []VentLine, ventMap VentMap, isPrintMap bool) {
 }
 
 func run5_1() {
-	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5_example.txt")
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5_example.txt")
 	ventLines, ventMap := getVentMapAndLines(input, true)
 	getOverlaps(ventLines, ventMap, true)
 }
 
 func run5_2() {
-	var input []string = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5.txt")
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_5.txt")
 	ventLines, ventMap := getVentMapAndLines(input, false)
 	getOverlaps(ventLines, ventMap, false)
 
