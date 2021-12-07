@@ -7,16 +7,7 @@ import (
 )
 
 func createLanterfishMap(input string) map[int]int {
-	populationMap := make(map[int]int)
-	populationMap[0] = 0
-	populationMap[1] = 0
-	populationMap[2] = 0
-	populationMap[3] = 0
-	populationMap[4] = 0
-	populationMap[5] = 0
-	populationMap[6] = 0
-	populationMap[7] = 0
-	populationMap[8] = 0
+	populationMap := map[int]int{0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
 
 	for _, fish := range strings.Split(input, ",") {
 		value, _ := strconv.Atoi(fish)
@@ -41,7 +32,6 @@ func modelPopulationCycle(populationMap map[int]int) map[int]int {
 			mapCopy[8] = populationMap[0]
 			mapCopy[6] += populationMap[0]
 		}
-
 	}
 
 	return mapCopy
