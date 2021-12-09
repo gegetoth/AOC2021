@@ -101,13 +101,24 @@ func delete(lst []string, elem string) []string {
 	return lst[:len(lst)-1]
 }
 
-func getDigit9(rest []string, numMap map[int][]string, number *Number) {
-	for _, d := range rest {
+func deleteP(lst *([]string), elem string) {
+	e := -1
+	for i := 0; i < len(*lst); i++ {
+		if (*lst)[i] == elem {
+			e = i
+		}
+	}
+	(*lst)[e] = (*lst)[len(*lst)-1]
+	*lst = (*lst)[:len(*lst)-1]
+}
+
+func getDigit9(rest *[]string, numMap map[int][]string, number *Number) {
+	for _, d := range *rest {
 		if isSubset(getSlice(d), append(numMap[4], number.upper)) {
 			diff := difference(getSlice(d), append(numMap[4], number.upper))
 			number.bottom = diff[0]
 			numMap[9] = getSlice(d)
-			rest = delete(rest, d)
+			deleteP(rest, d)
 		}
 	}
 }
@@ -136,15 +147,7 @@ func getOutputNumber(line string) int {
 
 	number.upper = difference(numMap[7], numMap[1])[0]
 
-	for _, d := range rest {
-		if isSubset(getSlice(d), append(numMap[4], number.upper)) {
-			diff := difference(getSlice(d), append(numMap[4], number.upper))
-			number.bottom = diff[0]
-			numMap[9] = getSlice(d)
-			rest = delete(rest, d)
-		}
-	}
-	//getDigit9(rest, numMap, &number)
+	getDigit9(&rest, numMap, &number)
 
 	for _, d := range rest {
 		if isSubset(numMap[9], getSlice(d)) {
@@ -202,7 +205,7 @@ func getOutputNumber(line string) int {
 }
 
 func run8_2() {
-	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_8.txt")
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_8_example.txt")
 	sum := 0
 	for _, line := range input {
 		sum += getOutputNumber(line)
