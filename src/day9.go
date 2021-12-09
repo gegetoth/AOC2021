@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func getVolcanoMatrix(input []string) [][]int {
@@ -136,22 +137,38 @@ func getSizeOfBasin(i, j int, volcanoMatrix [][]int, numb int, visited map[Volca
 	return numb
 }
 
+func getAdjacentsOfBasin(wg *sync.WaitGroup, basin Basin, volcanoMatrix [][]int, basinSizes chan int) {
+	defer wg.Done()
+	visited := make(map[VolcanoField]bool, 0)
+	getSizeOfBasin(basin.i, basin.j, volcanoMatrix, 0, visited)
+	//fmt.Printf("Visited: %+v\n", visited)
+	println(len(visited))
+	basinSizes <- len(visited)
+	println("Worker has finished with processing the basin.")
+}
+
 func run9_2() {
 	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_9.txt")
 	volcanoMatrix := getVolcanoMatrix(input)
 	printIntMatrix(volcanoMatrix)
 	_, basinList := getBasins(volcanoMatrix)
+	var wg sync.WaitGroup
 
-	basinSizes := make([]int, 0)
+	basinSizes := make(chan int, len(basinList))
 	for _, b := range basinList {
-		visited := make(map[VolcanoField]bool, 0)
-		getSizeOfBasin(b.i, b.j, volcanoMatrix, 0, visited)
-		//fmt.Printf("Visited: %+v\n", visited)
-		println(len(visited))
-		basinSizes = append(basinSizes, len(visited))
+		wg.Add(1)
+		go getAdjacentsOfBasin(&wg, b, volcanoMatrix, basinSizes)
 	}
-	sort.Ints(basinSizes)
-	fmt.Printf("Basin sizes: %+v\n", basinSizes)
-	fmt.Printf("Basin sizes: %+v\n", basinSizes[len(basinSizes)-1]*basinSizes[len(basinSizes)-2]*basinSizes[len(basinSizes)-3])
+
+	println("Wit for the workers to finish")
+	wg.Wait()
+	close(basinSizes)
+
+	basinS := make([]int, len(basinSizes))
+	for elem := range basinSizes {
+		basinS = append(basinS, elem)
+	}
+	sort.Ints(basinS)
+	fmt.Printf("Basin sizes: %+v\n", basinS[len(basinS)-1]*basinS[len(basinS)-2]*basinS[len(basinS)-3])
 
 }
