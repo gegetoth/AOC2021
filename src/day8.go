@@ -123,7 +123,41 @@ func getDigit9(rest *[]string, numMap map[int][]string, number *Number) {
 	}
 }
 
-func getOutputNumber(line string) int {
+func getDigit5And3(rest *[]string, numMap map[int][]string, number *Number) {
+	for _, d := range *rest {
+		if isSubset(numMap[9], getSlice(d)) {
+			diff := difference(numMap[9], getSlice(d))
+			if contains(numMap[1], diff[0]) {
+				number.topRight = diff[0]
+				numMap[5] = getSlice(d)
+			} else {
+				number.topLeft = diff[0]
+				numMap[3] = getSlice(d)
+			}
+			deleteP(rest, d)
+		}
+	}
+}
+
+func getDigit6And0And2(rest *[]string, numMap map[int][]string, number *Number) {
+	for _, d := range *rest {
+		if !contains(getSlice(d), number.topRight) {
+			numMap[6] = getSlice(d)
+
+		} else {
+			diff := difference(numMap[8], getSlice(d))
+			if len(diff) == 1 {
+				number.middle = diff[0]
+				numMap[0] = getSlice(d)
+			} else {
+				numMap[2] = getSlice(d)
+			}
+		}
+		deleteP(rest, d)
+	}
+}
+
+func getOutputNumber(line string, c chan int) {
 	numMap := map[int][]string{0: nil, 1: nil, 2: nil, 3: nil, 4: nil, 5: nil, 6: nil, 7: nil, 8: nil, 9: nil}
 	in, out := getInputOutPutArrays(line)
 	rest := make([]string, 0)
@@ -148,36 +182,8 @@ func getOutputNumber(line string) int {
 	number.upper = difference(numMap[7], numMap[1])[0]
 
 	getDigit9(&rest, numMap, &number)
-
-	for _, d := range rest {
-		if isSubset(numMap[9], getSlice(d)) {
-			diff := difference(numMap[9], getSlice(d))
-			if contains(numMap[1], diff[0]) {
-				number.topRight = diff[0]
-				numMap[5] = getSlice(d)
-			} else {
-				number.topLeft = diff[0]
-				numMap[3] = getSlice(d)
-			}
-			rest = delete(rest, d)
-		}
-	}
-
-	for _, d := range rest {
-		if !contains(getSlice(d), number.topRight) {
-			numMap[6] = getSlice(d)
-
-		} else {
-			diff := difference(numMap[8], getSlice(d))
-			if len(diff) == 1 {
-				number.middle = diff[0]
-				numMap[0] = getSlice(d)
-			} else {
-				numMap[2] = getSlice(d)
-			}
-		}
-		rest = delete(rest, d)
-	}
+	getDigit5And3(&rest, numMap, &number)
+	getDigit6And0And2(&rest, numMap, &number)
 
 	mapCopy := make(map[string]int)
 
@@ -201,14 +207,16 @@ func getOutputNumber(line string) int {
 	}
 	value, _ := strconv.Atoi(strings.Join(outputNum, ""))
 	println(value)
-	return value
+	c <- value
 }
 
 func run8_2() {
-	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_8_example.txt")
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_8.txt")
 	sum := 0
+	c := make(chan int, len(input))
 	for _, line := range input {
-		sum += getOutputNumber(line)
+		getOutputNumber(line, c)
+		sum += <-c
 	}
 	println(sum)
 }
