@@ -26,22 +26,6 @@ func getGamma(input [][]string, defaultValue ...string) []string {
 	return gamma
 }
 
-func getMatrix(input []string) [][]string {
-	var intMatrix [][]string
-	for _, each_ln := range input {
-		chars := []rune(each_ln)
-		intArr := make([]string, len(chars))
-		for i := 0; i < len(chars); i++ {
-			intArr[i] = string(chars[i])
-		}
-		intMatrix = append(intMatrix, intArr)
-	}
-
-	printStrMatrix(intMatrix)
-
-	return intMatrix
-}
-
 func invertBits(bitArray []string) []string {
 	newArr := make([]string, len(bitArray))
 
