@@ -43,6 +43,15 @@ func isSmallVisitedTwice(visitedCaves map[string]int) bool {
 	return false
 }
 
+func printPath(path []Cave) {
+	fmt.Printf("Path: ")
+
+	for _, p := range path {
+		fmt.Printf("%+v,", p.name)
+	}
+	fmt.Printf("\n")
+}
+
 func DFS(cave Cave, path []Cave, visitedCaves map[string]int) {
 	visitedCopy := make(map[string]int, len(visitedCaves))
 	for k, v := range visitedCaves {
@@ -50,27 +59,43 @@ func DFS(cave Cave, path []Cave, visitedCaves map[string]int) {
 	}
 	if cave.name == "end" {
 		path = append(path, cave)
-		fmt.Printf("Path: %+v\n", path)
+		printPath(path)
 		count++
 		return
 	}
 
 	_, ok := visitedCopy[cave.name]
-	if cave.name == strings.ToLower(cave.name) && !ok {
+	if cave.name == strings.ToLower(cave.name) {
 		path = append(path, cave)
-		visitedCopy[cave.name] = 1
+		if ok {
+			if cave.name == "start" || cave.name == "end" {
+				visitedCopy[cave.name] = 1
+			} else {
+				visitedCopy[cave.name]++
+			}
+		} else {
+			visitedCopy[cave.name] = 1
+		}
 		for _, adj := range cave.adjCaves {
-			_, ok := visitedCopy[adj.name]
-			if !ok {
-				DFS(*adj, path, visitedCopy)
+			if adj.name != "start" {
+				_, ok := visitedCopy[adj.name]
+				if ok && !isSmallVisitedTwice(visitedCopy) {
+					DFS(*adj, path, visitedCopy)
+				} else if !ok {
+					DFS(*adj, path, visitedCopy)
+				}
 			}
 		}
 	} else if cave.name == strings.ToUpper(cave.name) {
 		path = append(path, cave)
 		for _, adj := range cave.adjCaves {
-			_, ok := visitedCopy[adj.name]
-			if !ok {
-				DFS(*adj, path, visitedCopy)
+			if adj.name != "start" {
+				_, ok := visitedCopy[adj.name]
+				if ok && !isSmallVisitedTwice(visitedCopy) {
+					DFS(*adj, path, visitedCopy)
+				} else if !ok {
+					DFS(*adj, path, visitedCopy)
+				}
 			}
 		}
 	}
@@ -92,7 +117,7 @@ func run12_1() {
 }
 
 func run12_2() {
-	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_12_example_1.txt")
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_12.txt")
 	startCave := readCaveMapInput(input)
 
 	fmt.Printf("Start cave: %+v\n", startCave)
