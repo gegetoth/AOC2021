@@ -72,15 +72,6 @@ func difference(a, b []string) []string {
 	return diff
 }
 
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
 func isSubset(a, b []string) bool {
 	for _, i := range b {
 		if !contains(a, i) {

@@ -148,3 +148,12 @@ func (s *Queue) Get() (interface{}, bool) {
 		return element, true
 	}
 }
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
