@@ -52,7 +52,20 @@ func printPath(path []Cave) {
 	fmt.Printf("\n")
 }
 
-func DFS(cave Cave, path []Cave, visitedCaves map[string]int) {
+func processAdjCaves(adjCaves map[string]*Cave, visitedCopy map[string]int, path []Cave, isPart1 bool) {
+	for _, adj := range adjCaves {
+		if adj.name != "start" {
+			_, ok := visitedCopy[adj.name]
+			if !isPart1 && ok && !isSmallVisitedTwice(visitedCopy) {
+				DFS(*adj, path, visitedCopy, isPart1)
+			} else if !ok {
+				DFS(*adj, path, visitedCopy, isPart1)
+			}
+		}
+	}
+}
+
+func DFS(cave Cave, path []Cave, visitedCaves map[string]int, isPart1 bool) {
 	visitedCopy := make(map[string]int, len(visitedCaves))
 	for k, v := range visitedCaves {
 		visitedCopy[k] = v
@@ -66,8 +79,7 @@ func DFS(cave Cave, path []Cave, visitedCaves map[string]int) {
 
 	_, ok := visitedCopy[cave.name]
 	if cave.name == strings.ToLower(cave.name) {
-		path = append(path, cave)
-		if ok {
+		if ok && !isPart1 {
 			if cave.name == "start" || cave.name == "end" {
 				visitedCopy[cave.name] = 1
 			} else {
@@ -76,28 +88,11 @@ func DFS(cave Cave, path []Cave, visitedCaves map[string]int) {
 		} else {
 			visitedCopy[cave.name] = 1
 		}
-		for _, adj := range cave.adjCaves {
-			if adj.name != "start" {
-				_, ok := visitedCopy[adj.name]
-				if ok && !isSmallVisitedTwice(visitedCopy) {
-					DFS(*adj, path, visitedCopy)
-				} else if !ok {
-					DFS(*adj, path, visitedCopy)
-				}
-			}
-		}
+		path = append(path, cave)
+		processAdjCaves(cave.adjCaves, visitedCopy, path, isPart1)
 	} else if cave.name == strings.ToUpper(cave.name) {
 		path = append(path, cave)
-		for _, adj := range cave.adjCaves {
-			if adj.name != "start" {
-				_, ok := visitedCopy[adj.name]
-				if ok && !isSmallVisitedTwice(visitedCopy) {
-					DFS(*adj, path, visitedCopy)
-				} else if !ok {
-					DFS(*adj, path, visitedCopy)
-				}
-			}
-		}
+		processAdjCaves(cave.adjCaves, visitedCopy, path, isPart1)
 	}
 
 }
@@ -112,7 +107,7 @@ func run12_1() {
 		fmt.Printf("Cave: %+v\n", v)
 	}
 
-	DFS(startCave, make([]Cave, 0), make(map[string]int, 0))
+	DFS(startCave, make([]Cave, 0), make(map[string]int, 0), true)
 	fmt.Printf("Count: %+v\n", count)
 }
 
@@ -126,6 +121,6 @@ func run12_2() {
 		fmt.Printf("Cave: %+v\n", v)
 	}
 
-	DFS(startCave, make([]Cave, 0), make(map[string]int, 0))
+	DFS(startCave, make([]Cave, 0), make(map[string]int, 0), false)
 	fmt.Printf("Count: %+v\n", count)
 }
