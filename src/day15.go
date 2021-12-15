@@ -29,7 +29,6 @@ type RiskMatrixField struct {
 	j    int
 	risk int
 	cost int
-	path [][2]int
 }
 
 func getRiskLevelFieldMatrix(riskLevelMatrix [][]int) [][]RiskMatrixField {
@@ -37,7 +36,7 @@ func getRiskLevelFieldMatrix(riskLevelMatrix [][]int) [][]RiskMatrixField {
 	for i := 0; i < len(riskLevelMatrix); i++ {
 		row := make([]RiskMatrixField, len(riskLevelMatrix[0]))
 		for j := 0; j < len(riskLevelMatrix[0]); j++ {
-			row[j] = RiskMatrixField{i, j, riskLevelMatrix[i][j], MAX_INT, make([][2]int, 0)}
+			row[j] = RiskMatrixField{i, j, riskLevelMatrix[i][j], MAX_INT}
 		}
 		riskLevelFieldMatrix[i] = row
 	}
@@ -95,7 +94,6 @@ func runRiskDijkstra(riskLevelFieldMatrix *[][]RiskMatrixField) {
 
 				if (*riskLevelFieldMatrix)[current[0]][current[1]].cost+(*riskLevelFieldMatrix)[adj[0]][adj[1]].risk < (*riskLevelFieldMatrix)[adj[0]][adj[1]].cost {
 					(*riskLevelFieldMatrix)[adj[0]][adj[1]].cost = (*riskLevelFieldMatrix)[current[0]][current[1]].cost + (*riskLevelFieldMatrix)[adj[0]][adj[1]].risk
-					(*riskLevelFieldMatrix)[adj[0]][adj[1]].path = append((*riskLevelFieldMatrix)[adj[0]][adj[1]].path, current)
 				}
 			}
 		}
@@ -142,7 +140,7 @@ func createHorizontalBlock(base [][]RiskMatrixField) [][]RiskMatrixField {
 				} else {
 					newRisk = row[jj].risk + (j)
 				}
-				field := RiskMatrixField{ii, (len(base))*j + jj, newRisk, MAX_INT, make([][2]int, 0)}
+				field := RiskMatrixField{ii, (len(base))*j + jj, newRisk, MAX_INT}
 				bigRow = append(bigRow, field)
 			}
 		}
@@ -165,7 +163,7 @@ func vertically(horizontalBlock [][]RiskMatrixField) [][]RiskMatrixField {
 				} else {
 					newRisk = row[j].risk + (ii)
 				}
-				field := RiskMatrixField{(len(horizontalBlock))*ii + i, j, newRisk, MAX_INT, make([][2]int, 0)}
+				field := RiskMatrixField{(len(horizontalBlock))*ii + i, j, newRisk, MAX_INT}
 				bigRow = append(bigRow, field)
 			}
 			bigMap = append(bigMap, bigRow)
