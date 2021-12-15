@@ -81,16 +81,16 @@ func isSubset(a, b []string) bool {
 	return true
 }
 
-func delete(lst []string, elem string) []string {
-	e := -1
-	for i := 0; i < len(lst); i++ {
-		if lst[i] == elem {
-			e = i
-		}
-	}
-	lst[e] = lst[len(lst)-1]
-	return lst[:len(lst)-1]
-}
+//func delete(lst []string, elem string) []string {
+//	e := -1
+//	for i := 0; i < len(lst); i++ {
+//		if lst[i] == elem {
+//			e = i
+//		}
+//	}
+//	lst[e] = lst[len(lst)-1]
+//	return lst[:len(lst)-1]
+//}
 
 func deleteP(lst *([]string), elem string) {
 	e := -1
