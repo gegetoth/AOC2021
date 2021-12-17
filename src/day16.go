@@ -38,18 +38,18 @@ type BITSPocket struct {
 	typeId  int
 }
 
-func processLiteralValue(literal []int) []int {
+func processLiteralValue(literal []int) int {
 	isLastValue := false
 	valueStartBit := 0
-	decValues := make([]int, 0)
+	binVal := make([]int, 0)
 	for !isLastValue {
 		if literal[valueStartBit] == 0 {
 			isLastValue = true
 		}
-		decValues = append(decValues, fromBinaryToDec(literal[valueStartBit+1:valueStartBit+5]))
+		binVal = append(binVal, literal[valueStartBit+1:valueStartBit+5]...)
 		valueStartBit += 5
 	}
-	return decValues
+	return fromBinaryToDec(binVal)
 }
 
 func fromBinaryToDec(bin []int) int {
@@ -61,7 +61,7 @@ func fromBinaryToDec(bin []int) int {
 	return value
 }
 
-func processPacket(packet []int) ([]int, int, int) {
+func processPacket(packet []int) (int, int, int) {
 	fmt.Printf("Packet: %+v\n", packet)
 	version := fromBinaryToDec([]int{packet[0], packet[1], packet[2]})
 	typeId := fromBinaryToDec([]int{packet[3], packet[4], packet[5]})
@@ -70,25 +70,21 @@ func processPacket(packet []int) ([]int, int, int) {
 	length := 6
 	lastPacketBit := len(packet) - 1
 	versionSum := version
+	litVal := make([]int, 0)
 	if typeId == 4 {
-		//var lastPacketBit int
 		for i := 6; i < len(packet); i += 5 {
 			if packet[i] == 0 {
 				currentNumOfBits := i + 4 + 1
-				//if currentNumOfBits%4 != 0 {
-				//	lastPacketBit = currentNumOfBits + (4 - currentNumOfBits%4)
-				//} else {
-				//	lastPacketBit = currentNumOfBits
-				//}
 				length = currentNumOfBits
 				break
 			}
 		}
-		litVal := processLiteralValue(packet[6 : lastPacketBit+1])
+		val := processLiteralValue(packet[6 : lastPacketBit+1])
 		fmt.Printf("Lit val: %+v\n", litVal)
 		fmt.Printf("Legnth: %+v\n", length)
-		return litVal, length, versionSum
+		return val, length, versionSum
 	} else {
+		var num int
 		lengthTypeId := packet[6]
 		fmt.Printf("length type id: %+v\n", lengthTypeId)
 		if lengthTypeId == 1 {
@@ -96,17 +92,13 @@ func processPacket(packet []int) ([]int, int, int) {
 			fmt.Printf("Num of packets: %+v\n", numOfPackets)
 			lastPacketBit = 18
 			length = 18
-			litVal := make([]int, 0)
 			for i := 1; i <= numOfPackets; i++ {
 				v, endBit, vers := processPacket(packet[lastPacketBit:])
 				lastPacketBit = endBit + lastPacketBit
 				length += endBit
 				versionSum += vers
-				litVal = append(litVal, v...)
+				litVal = append(litVal, v)
 			}
-
-			return litVal, length, versionSum
-			//litVal:=make([]int, 0)
 		} else {
 			bitLength := fromBinaryToDec(packet[7:22])
 			fmt.Printf("Bit length: %+v\n", bitLength)
@@ -114,20 +106,89 @@ func processPacket(packet []int) ([]int, int, int) {
 			fmt.Printf("End of block: %+v\n", endOfBlock)
 			lastPacketBit = 22
 			length = 22
-			litVal := make([]int, 0)
 			for lastPacketBit < endOfBlock {
 				v, endBit, vers := processPacket(packet[lastPacketBit : endOfBlock+1])
 				lastPacketBit = endBit + lastPacketBit
 				length += endBit
 				versionSum += vers
-				litVal = append(litVal, v...)
+				litVal = append(litVal, v)
 			}
-
-			return litVal, length, versionSum
-
 		}
 
+		switch typeId {
+		case 0:
+			num = sumPac(litVal)
+			break
+		case 1:
+			num = prosPac(litVal)
+			break
+		case 2:
+			num = minPac(litVal)
+			break
+		case 3:
+			num = maxPac(litVal)
+			break
+		case 5:
+			if litVal[0] > litVal[1] {
+				num = 1
+			} else {
+				num = 0
+			}
+			break
+		case 6:
+			if litVal[0] < litVal[1] {
+				num = 1
+			} else {
+				num = 0
+			}
+			break
+		case 7:
+			if litVal[0] == litVal[1] {
+				num = 1
+			} else {
+				num = 0
+			}
+			break
+		}
+
+		return num, length, versionSum
 	}
+}
+
+func sumPac(pacets []int) int {
+	sum := 0
+	for _, v := range pacets {
+		sum += v
+	}
+	return sum
+}
+
+func prosPac(pacets []int) int {
+	num := 1
+	for _, v := range pacets {
+		num *= v
+	}
+	return num
+}
+
+func minPac(pacets []int) int {
+	min := MAX_INT
+	for _, v := range pacets {
+		if min > v {
+			min = v
+		}
+	}
+	return min
+}
+
+func maxPac(pacets []int) int {
+	max := -1
+	for _, v := range pacets {
+		if max < v {
+			max = v
+		}
+	}
+	return max
 }
 
 func run16_1() {
@@ -137,4 +198,12 @@ func run16_1() {
 	_, _, versionS := processPacket(binArray)
 	fmt.Printf("Version sum: %+v\n", versionS)
 
+}
+
+func run16_2() {
+	var input = read_lines("C:\\Users\\tothg\\Gege\\AOC2021\\res\\day_16.txt")
+	binArray := hexaToBinary(input[0])
+	fmt.Printf("Bin array: %+v\n", binArray)
+	num, _, _ := processPacket(binArray)
+	fmt.Printf("Num: %+v\n", num)
 }
